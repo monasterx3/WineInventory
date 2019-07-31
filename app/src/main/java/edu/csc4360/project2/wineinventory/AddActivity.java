@@ -2,7 +2,10 @@ package edu.csc4360.project2.wineinventory;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,4 +49,55 @@ public class AddActivity extends AppCompatActivity {
         AddDialog exampleDialog = new AddDialog();
         exampleDialog.show(getSupportFragmentManager(), "example dialog");
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+
+        switch (item.getItemId())
+        {
+            case R.id.add:
+                break;
+
+            case R.id.view:
+                actionView();
+                break;
+
+            case R.id.edit:
+                actionEdit();
+                break;
+
+            case R.id.search:
+                actionSearch();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void actionView()
+    {
+        Intent i = new Intent(AddActivity.this, ViewActivity.class);
+        startActivity(i);
+    }
+
+    private void actionEdit()
+    {
+        Intent i = new Intent(AddActivity.this, EditActivity.class);
+        startActivity(i);
+    }
+
+    private void actionSearch()
+    {
+        Intent i = new Intent(AddActivity.this, SearchActivity.class);
+        startActivity(i);
+    }
+
 }

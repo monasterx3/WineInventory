@@ -4,8 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 
@@ -68,6 +73,56 @@ public class ViewActivity extends AppCompatActivity {
 
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeDeleteCallback);
         itemTouchhelper.attachToRecyclerView(mRecyclerView);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+
+        switch (item.getItemId())
+        {
+            case R.id.add:
+                actionAdd();
+                break;
+
+            case R.id.view:
+                break;
+
+            case R.id.edit:
+                actionEdit();
+                break;
+
+            case R.id.search:
+                actionSearch();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void actionAdd()
+    {
+        Intent i = new Intent(ViewActivity.this, AddActivity.class);
+        startActivity(i);
+    }
+
+    private void actionEdit()
+    {
+        Intent i = new Intent(ViewActivity.this, EditActivity.class);
+        startActivity(i);
+    }
+
+    private void actionSearch()
+    {
+        Intent i = new Intent(ViewActivity.this, SearchActivity.class);
+        startActivity(i);
     }
 
 }

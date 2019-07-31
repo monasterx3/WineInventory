@@ -1,26 +1,36 @@
 package edu.csc4360.project2.wineinventory;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import edu.csc4360.project2.wineinventory.Model.WineDatabaseHandler;
 
 public class SearchActivity extends AppCompatActivity {
     WineDatabaseHandler db;
 
+    private boolean isFragmentDisplayed = false;
+
     private Button searchbtn;
+    private Button ratebtn;
+
     private EditText brandText;
     private ConstraintLayout constraintLayout;
+
+    static final String STATE_FRAGMENT = "state_of_fragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +50,45 @@ public class SearchActivity extends AppCompatActivity {
 
         brandText =(EditText) findViewById(R.id.typeText);
 
+        ratebtn = (Button) findViewById(R.id.ratebtn);
+
         searchbtn = (Button) findViewById(R.id.searchbtn);
         search();
 
+        ratebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Cursor result = db.search(brandText.getText().toString());
+                if (result.getCount() == 0) {
+                    //message
+                    showMessage("Error","no data");
+                    return;
+                }
+
+                if (!isFragmentDisplayed) {
+                    displayFragment();
+                } else {
+                    closeFragment();
+                }
+            }
+        });
+
+        if (savedInstanceState != null) {
+            isFragmentDisplayed =
+                    savedInstanceState.getBoolean(STATE_FRAGMENT);
+            if (isFragmentDisplayed) {
+                // If the fragment is displayed, change button to "close".
+                ratebtn.setText("Close");
+            }
+        }
+
+    }
+
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the state of the fragment (true=open, false=closed).
+        savedInstanceState.putBoolean(STATE_FRAGMENT, isFragmentDisplayed);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -83,6 +129,38 @@ public class SearchActivity extends AppCompatActivity {
         showMessage("data",buffer.toString());
     }
 
+
+    public void displayFragment() {
+        HeaderFragment headerFragment = HeaderFragment.newInstance();
+        // Get the FragmentManager and start a transaction.
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        // Add the SimpleFragment.
+        fragmentTransaction.add(R.id.fragment_container, headerFragment).addToBackStack(null).commit();
+        // Update the Button text.
+        ratebtn.setText("Close");
+        // Set boolean flag to indicate fragment is open.
+        isFragmentDisplayed = true;
+    }
+
+    public void closeFragment() {
+        // Get the FragmentManager.
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        // Check to see if the fragment is already showing.
+        HeaderFragment headerFragment = (HeaderFragment) fragmentManager
+                .findFragmentById(R.id.fragment_container);
+        if (headerFragment != null) {
+            // Create and commit the transaction to remove the fragment.
+            FragmentTransaction fragmentTransaction =
+                    fragmentManager.beginTransaction();
+            fragmentTransaction.remove(headerFragment).commit();
+        }
+        // Update the Button text.
+        ratebtn.setText("Rate");
+        // Set boolean flag to indicate fragment is closed.
+        isFragmentDisplayed = false;
+    }
+
     public void search(){
         searchbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,5 +191,56 @@ public class SearchActivity extends AppCompatActivity {
         builder.setTitle(title);
         builder.setMessage(message);
         builder.show();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+
+        switch (item.getItemId())
+        {
+            case R.id.add:
+                actionAdd();
+                break;
+
+            case R.id.view:
+                actionView();
+                break;
+
+            case R.id.edit:
+                actionEdit();
+                break;
+
+            case R.id.search:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void actionAdd()
+    {
+        Intent i = new Intent(SearchActivity.this, AddActivity.class);
+        startActivity(i);
+    }
+
+    private void actionView()
+    {
+        Intent i = new Intent(SearchActivity.this, ViewActivity.class);
+        startActivity(i);
+    }
+
+    private void actionEdit()
+    {
+        Intent i = new Intent(SearchActivity.this, EditActivity.class);
+        startActivity(i);
     }
 }
